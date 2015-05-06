@@ -23,11 +23,20 @@ var Engine = (function(global) {
         win = global.window,
         canvas = doc.createElement('canvas'),
         ctx = canvas.getContext('2d'),
+        scoreField = document.getElementById("score"),
+        lifeField = document.getElementById("life"),
+        levelField = document.getElementById("level"),               
+        lifeTimer,
         lastTime;
+    const COLLIDES = -1,
+          HITS_TARGET = 1,
+          HITS_TOP = 2,
+          NO_HIT = 0;
 
     canvas.width = 505;
     canvas.height = 606;
     doc.body.appendChild(canvas);
+
 
     /* This function serves as the kickoff point for the game loop itself
      * and handles properly calling the update and render methods.
@@ -45,8 +54,12 @@ var Engine = (function(global) {
          * our update function since it may be used for smooth animation.
          */
         update(dt);
-        render();
+        render();                
 
+        if(player.start && player.startLifeTimer){
+          player.startLifeTimer = false;
+          animLifeBox();                    
+        }
         /* Set our lastTime variable which is used to determine the time delta
          * for the next time this function is called.
          */
@@ -80,10 +93,8 @@ var Engine = (function(global) {
     function update(dt) {
         
         updateEntities(dt);
-        if(player.collides)
-            reset();
-        else
-            checkCollisions();        
+        if(player.hit != COLLIDES)
+          checkCollisions();        
         
     }
 
@@ -91,8 +102,9 @@ var Engine = (function(global) {
     function checkCollisions() {
 
         allEnemies.forEach(function(enemy) {
-            if((Math.abs(enemy.x - player.x) < 75) && (enemy.y == player.y))
-                player.collides = true;
+            if((Math.abs(enemy.x - player.x) < 75) && (enemy.y == player.y)){
+              player.hit = COLLIDES;
+            }
         });
 
     }
@@ -168,12 +180,28 @@ var Engine = (function(global) {
 
         player.render();
         target.render();
+        if(!player.start){
+          if(!player.gameOver){
+            startBtn.msg = "Press up button to start"
+          }else{
+            startBtn.msg = "Game over. Press up button to restart"           
+          }
+          startBtn.draw();
+        }
 
-        if(player.collides){
+        
+        if(life.show){
+          life.render();
+        }
+
+        if(player.start)
+          updateBoard();
+
+        if(player.hit == COLLIDES){
 
             ctx.fillStyle = "red";
             ctx.beginPath();
-            ctx.arc(player.x + 50,player.y + 35,50,0,2*Math.PI);
+            ctx.arc(player.x + 25,player.y + 68,25,0,2*Math.PI);
             ctx.fill();
         }
     }
@@ -184,8 +212,27 @@ var Engine = (function(global) {
      */
     function reset() {
         // noop
-        player.y = 400;
-        player.collides = false;
+        if(lifeTimer)
+          clearTimeout(lifeTimer); 
+
+    }
+
+    function updateBoard(){
+      lifeField.innerHTML = player.life;
+      scoreField.innerHTML = player.score;
+      levelField.innerHTML = player.level;
+    }
+
+    function animLifeBox(){
+
+      lifeTimer = setInterval(function(){
+
+        //console.log(player.startLifeTimer);
+        life.show = true;        
+        life.update();
+        setTimeout(function(){life.show = false;            
+        },2000);        
+      },5000);
     }
 
     /* Go ahead and load all of the images we know we're going to need to
@@ -199,7 +246,8 @@ var Engine = (function(global) {
         'images/enemy-bug.png',
         'images/char-boy.png',
         'images/Rock.png',
-        'images/Key.png'
+        'images/Key.png',
+        'images/gem-blue.png'
     ]);
     Resources.onReady(init);
 
