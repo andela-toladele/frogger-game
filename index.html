@@ -6,11 +6,32 @@
 </head>
 <body>
     <div id="header">
-      <h3>Frogger Game</h3>
-      <p>Level: <span id="level"></p>
-      <p>Score: <span id="score"></p>
-      <p>Life: <span id="life"></p>     
+      <div id="about">
+        <h3>FROGGER GAME: ABOUT</h3>
+        <p>
+          Try to move the player to the other side of the board without hitting the beetles.
+          Each time you hit the rock on the other side of the board your score increases.
+          The speed increases based on the number of times you get to the other side of the board.
+          The game starts with 3 lives, hit the diamond gem each time it appears to have 1 added to the life count.
+          Each time you hit any of the beetles, the life decreases by 1. Good luck!
+        <p>
+      </div>
+      <div id="gameData">
+        <h3>Frogger Game</h3>
+        <p>Level: <span id="level"></p>
+        <p>Score: <span id="score"></p>
+        <p>Life: <span id="life"></p>
+      </div>    
     </div>
+    <audio preload="true" id="collide">
+      <source src="sound/tick.wav" />
+    </audio>
+    <audio preload="true" id="crash">
+      <source src="sound/crash.wav" />
+    </audio>
+    <audio preload="true" id="siren">
+      <source src="sound/siren.mp3" />
+    </audio>
     <script src="js/resources.js"></script>
     <script src="js/app.js"></script>
     <script src="js/engine.js"></script>

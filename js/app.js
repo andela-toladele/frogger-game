@@ -2,6 +2,13 @@ const COLLIDES = -1,
       HITS_TARGET = 1,
       HITS_TOP = 2,
       NO_HIT = 0;
+var gameData = document.getElementById("gameData"),
+    about = document.getElementById("about"),
+
+    // Initialise the collision sound
+    collision = document.getElementById("collide"),
+    siren = document.getElementById("siren"),
+    crash = document.getElementById("crash");
 
 
 // Enemies our player must avoid
@@ -74,13 +81,26 @@ Player.prototype.update = function(){
   if (this.hit > NO_HIT){
     this.hits += 1;
   }else if (this.hit == COLLIDES){
+    if(crash) {
+        crash.currentTime = 0;
+        crash.play();
+    }
     this.life += -1;
     if(this.life == 0){
       this.gameOver = true;
       this.start = false;
+      return;
     }
     
   }
+
+  if(this.hit == HITS_TARGET){
+    if(collision) {
+        collision.currentTime = 0;
+        collision.play();
+    }
+  }
+
   if(this.hit != HITS_TOP) 
     this.score += this.hit * this.level;
   if(this.score < 0)
@@ -99,6 +119,9 @@ Player.prototype.update = function(){
     if(this.x == life.x && this.y - life.y == 15){
       this.life += 1;
       life.show = false;
+      if(siren) {
+        siren.pause();
+      }
     }
   }
 }
@@ -112,9 +135,21 @@ Player.prototype.restart = function(){
   this.startLifeTimer = true;
   this.start = true;
   this.gameOver = false;
+  gameData.style.display = "block";
+  about.style.display = "none";
+  this.y = 400;
+  this.x = 202;
 }
 
 Player.prototype.handleInput = function(key){
+
+  if(!this.start){
+    if(key == 'up'){
+      this.restart();     
+    }
+    return;
+  }
+
 
   switch(key){
 
@@ -126,11 +161,7 @@ Player.prototype.handleInput = function(key){
       if(this.x != 404)
         this.x += 101;
       break;
-    case 'up':
-      if(!this.start){
-        this.restart();        
-        return;        
-      }   
+    case 'up':        
       if(this.y != 68){
         this.y -= 83;
       }else{

@@ -25,7 +25,7 @@ var Engine = (function(global) {
         ctx = canvas.getContext('2d'),
         scoreField = document.getElementById("score"),
         lifeField = document.getElementById("life"),
-        levelField = document.getElementById("level"),               
+        levelField = document.getElementById("level"),                      
         lifeTimer,
         lastTime;
     const COLLIDES = -1,
@@ -55,7 +55,7 @@ var Engine = (function(global) {
          */
         update(dt);
         render();                
-
+        
         if(player.start && player.startLifeTimer){
           player.startLifeTimer = false;
           animLifeBox();                    
@@ -121,6 +121,11 @@ var Engine = (function(global) {
             enemy.update(dt);
         });
         player.update();
+
+        if(!player.start){
+          if(lifeTimer)
+          clearTimeout(lifeTimer);
+        }
     }
 
     /* This function initially draws the "game level", it will then call
@@ -180,6 +185,15 @@ var Engine = (function(global) {
 
         player.render();
         target.render();
+
+        if(player.hit == COLLIDES && !player.gameOver){
+
+            ctx.fillStyle = "red";
+            ctx.beginPath();
+            ctx.arc(player.x + 25,player.y + 68,25,0,2*Math.PI);
+            ctx.fill();
+        }
+
         if(!player.start){
           if(!player.gameOver){
             startBtn.msg = "Press up button to start"
@@ -194,16 +208,8 @@ var Engine = (function(global) {
           life.render();
         }
 
-        if(player.start)
-          updateBoard();
+        updateBoard();
 
-        if(player.hit == COLLIDES){
-
-            ctx.fillStyle = "red";
-            ctx.beginPath();
-            ctx.arc(player.x + 25,player.y + 68,25,0,2*Math.PI);
-            ctx.fill();
-        }
     }
 
     /* This function does nothing but it could have been a good place to
@@ -211,9 +217,7 @@ var Engine = (function(global) {
      * those sorts of things. It's only called once by the init() method.
      */
     function reset() {
-        // noop
-        if(lifeTimer)
-          clearTimeout(lifeTimer); 
+        // noop        
 
     }
 
@@ -227,12 +231,19 @@ var Engine = (function(global) {
 
       lifeTimer = setInterval(function(){
 
-        //console.log(player.startLifeTimer);
+        if(siren) {
+          siren.currentTime = 0;
+          siren.play();
+        }
+
         life.show = true;        
         life.update();
-        setTimeout(function(){life.show = false;            
-        },2000);        
-      },5000);
+        setTimeout(function(){life.show = false;
+          if(siren) {            
+            siren.pause();
+          }          
+        },5000);        
+      },10000);
     }
 
     /* Go ahead and load all of the images we know we're going to need to

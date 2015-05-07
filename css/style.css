@@ -15,4 +15,12 @@ div {
   top: 50px;
   left: 50px;
   text-align: left;
+  width: 250px;
+}
+#gameData {
+  display: none;
+}
+
+#about {
+  text-align: justify;
 }
