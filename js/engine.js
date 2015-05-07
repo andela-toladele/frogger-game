@@ -26,12 +26,12 @@ var Engine = (function(global) {
         scoreField = document.getElementById("score"),
         lifeField = document.getElementById("life"),
         levelField = document.getElementById("level"),                      
-        lifeTimer,
+        lifeTimer, //variable to hold handle of the timer object redering the life every 10 seconds
         lastTime;
-    const COLLIDES = -1,
-          HITS_TARGET = 1,
-          HITS_TOP = 2,
-          NO_HIT = 0;
+    const COLLIDES = -1, //Represents when player collides with enemy object(beetles)
+          HITS_TARGET = 1, //Represents when player hits the target object(stone)
+          HITS_TOP = 2, //Represents when player hits top of the board and not the target
+          NO_HIT = 0; //Represents when player neither hits nor collides with any object
 
     canvas.width = 505;
     canvas.height = 606;
@@ -56,9 +56,9 @@ var Engine = (function(global) {
         update(dt);
         render();                
         
-        if(player.start && player.startLifeTimer){
+        if(player.start && player.startLifeTimer){ // If game is started and the life timer is not started yet
           player.startLifeTimer = false;
-          animLifeBox();                    
+          animLifeBox();  //Start life timer                  
         }
         /* Set our lastTime variable which is used to determine the time delta
          * for the next time this function is called.
@@ -101,9 +101,11 @@ var Engine = (function(global) {
 
     function checkCollisions() {
 
+        //If player collides with any of the enemy objects
+        //Indicate in the player object hit property
         allEnemies.forEach(function(enemy) {
             if((Math.abs(enemy.x - player.x) < 75) && (enemy.y == player.y)){
-              player.hit = COLLIDES;
+              player.hit = COLLIDES; 
             }
         });
 
@@ -122,6 +124,7 @@ var Engine = (function(global) {
         });
         player.update();
 
+        //If game is over, then stop rendering of life object
         if(!player.start){
           if(lifeTimer)
           clearTimeout(lifeTimer);
@@ -186,6 +189,7 @@ var Engine = (function(global) {
         player.render();
         target.render();
 
+        //Draw a red circle object on player during collision
         if(player.hit == COLLIDES && !player.gameOver){
 
             ctx.fillStyle = "red";
@@ -194,6 +198,7 @@ var Engine = (function(global) {
             ctx.fill();
         }
 
+        //Draw a start or restart button on screen
         if(!player.start){
           if(!player.gameOver){
             startBtn.msg = "Press up button to start"
@@ -227,9 +232,10 @@ var Engine = (function(global) {
       levelField.innerHTML = player.level;
     }
 
+    //Show life object
     function animLifeBox(){
 
-      lifeTimer = setInterval(function(){
+      lifeTimer = setInterval(function(){ //Function to show life object every 10 seconds
 
         if(siren) {
           siren.currentTime = 0;
@@ -238,7 +244,8 @@ var Engine = (function(global) {
 
         life.show = true;        
         life.update();
-        setTimeout(function(){life.show = false;
+        setTimeout(function(){ //function to hide the life object after 5 seconds of being rendered
+          life.show = false;
           if(siren) {            
             siren.pause();
           }          
